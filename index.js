@@ -24,7 +24,6 @@ async function DBConnect() {
     console.log("Database conconnected");
   } catch (error) {
     console.log(error);
-    
   }
 }
 DBConnect();
@@ -58,20 +57,18 @@ app.get("/products", async (req, res) => {
     const query = {};
     const currsor = servicesCollections.find(query);
     const services = await currsor.toArray();
-    if(services){
-        res.send({
-            success: true,
-            data: services,
-          });
+    if (services) {
+      res.send({
+        success: true,
+        data: services,
+      });
+    } else {
+      res.send({
+        success: false,
+        data: [],
+        message: "connection failed",
+      });
     }
-    else{
-        res.send({
-            success: false,
-            data: [],
-            message:"connection failed"
-          });
-    }
-    
   } catch (error) {
     console.log(error);
   }
@@ -81,9 +78,9 @@ app.get("/products", async (req, res) => {
 app.get("/products/:key", async (req, res) => {
   try {
     const name = req.params.key;
-    const query = {"$or":[{name:{$regex:name}}]}
+    const query = { $or: [{ name: { $regex: name } }] };
     const currsor = servicesCollections.find(query);
-    const product = await currsor.toArray()
+    const product = await currsor.toArray();
     if (product) {
       res.send({
         success: true,
@@ -93,7 +90,7 @@ app.get("/products/:key", async (req, res) => {
       res.send({
         success: false,
         data: [],
-        message:'Product not found!'
+        message: "Product not found!",
       });
     }
   } catch (error) {
@@ -102,22 +99,31 @@ app.get("/products/:key", async (req, res) => {
 });
 
 // product detail
-app.get('/product/detail/:id',async(req,res)=>{
-  console.log(req.params.id)
+app.get("/product/detail/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const query = {_id:new ObjectId(id)}
-    const currsor =await servicesCollections.findOne(query)
-    res.send(currsor)
-  } catch (error) {
+    const query = { _id: new ObjectId(id) };
+    const currsor = await servicesCollections.findOne(query);
+    if (currsor) {
+      res.send({
+        success: true,
+        data: currsor,
+      });
+    }
+    else{
+        res.send({
+          success:false,
+          data:{}
+        })
+    }
     
+  } catch (error) {
+    console.log(error)
   }
-
-})
+});
 
 app.get("/", (req, res) => {
   res.send("mobile dokan server is running");
 });
-
 
 app.listen(port, () => console.log("server is running"));
