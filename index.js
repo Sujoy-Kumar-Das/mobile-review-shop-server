@@ -30,6 +30,7 @@ DBConnect();
 
 // db collections
 const servicesCollections = client.db("Mobiel-dokan").collection("services");
+const userReviewCollections = client.db("Mobile-dokan").collection("reviews");
 
 // get products for home
 
@@ -121,6 +122,30 @@ app.get("/product/detail/:id", async (req, res) => {
     console.log(error)
   }
 });
+
+// post review
+
+app.post("/review",(req,res)=>{
+  
+  try {
+    const review = req.body
+    if(review){
+      res.send({
+        success:true,
+        message:"Review added"
+      })
+      userReviewCollections.insertOne(review)
+    }
+    else{
+     res.send({
+      success:false,
+      message:"Review not found"
+     })
+    }
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 app.get("/", (req, res) => {
   res.send("mobile dokan server is running");
