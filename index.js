@@ -110,45 +110,104 @@ app.get("/product/detail/:id", async (req, res) => {
         success: true,
         data: currsor,
       });
+    } else {
+      res.send({
+        success: false,
+        data: {},
+      });
     }
-    else{
-        res.send({
-          success:false,
-          data:{}
-        })
-    }
-    
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 });
 
+// get review
+
+app.get("/review/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { productId: id };
+    const currsor = userReviewCollections.find(query);
+    const reviews = await currsor.toArray();
+
+    res.send({
+      data: reviews,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 // post review
 
-app.post("/review",(req,res)=>{
-  
+app.post("/review", async (req, res) => {
   try {
-    const review = req.body
-    if(review){
+    const review = req.body;
+    if (review) {
       res.send({
-        success:true,
-        message:"Review added"
-      })
-      userReviewCollections.insertOne(review)
-    }
-    else{
-     res.send({
-      success:false,
-      message:"Review not found"
-     })
+        success: true,
+        message: "Review added",
+      });
+      await userReviewCollections.insertOne(review);
+    } else {
+      res.send({
+        success: false,
+        message: "Review not found",
+      });
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-})
+});
 
 app.get("/", (req, res) => {
   res.send("mobile dokan server is running");
 });
 
+// update review
+
+// app.put('/updateReview/:id',async(req,res)=>{
+//   try {
+//     const id = req.params.id;
+//     const data = req.body;
+//     console.log(data)
+//   } catch (error) {
+//     console.log(error)
+//   }
+// })
+
+
+// delete review
+
+app.delete('/deleteReview/:id',async(req,res)=>{
+  try {
+    const id = req.params.id;
+    const query = {_id : new ObjectId(id)}
+    const currsor = await userReviewCollections.findOne(query)
+    // console.log(currsor)
+    if (!currsor?._id) {
+      res.send({
+        success: false,
+        error: "Review not found",
+      });
+      return;
+    }
+    
+    const result = await userReviewCollections.deleteOne(query)
+    
+    if(result.deletedCount){
+      res.send({
+        success:true,
+        message:"Review deleted successfully"
+      })
+    }
+    else{
+      res.send({
+        success:false,
+        message:'Someting is goning wrong'
+      })
+    }
+  } catch (error) {
+    console.log(error)
+  }
+})
 app.listen(port, () => console.log("server is running"));
